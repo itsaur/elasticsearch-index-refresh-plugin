@@ -1,0 +1,3 @@
+rootProject.name = 'elasticsearch-index-refresh-plugin'
+
+include(':index-refresh-plugin')

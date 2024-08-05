@@ -1,0 +1,5 @@
+esplugin {
+    name 'index-refresh-plugin'
+    description 'A plugin that informs through REST endpoint when an indexed was refreshed'
+    classname 'com.itsaur.elasticsearch.index.refresh.plugin.IndexRefreshPlugin'
+}

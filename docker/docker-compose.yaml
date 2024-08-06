@@ -19,7 +19,7 @@ services:
         target: 9200
         published: 9200
     volumes:
-      - "${PWD}/elasticsearch/engine-plugin-1.0-SNAPSHOT.zip:/usr/share/elasticsearch/engine-plugin-1.0-SNAPSHOT.zip"
+      - "${PWD}/elasticsearch/index-refresh-plugin-1.0-SNAPSHOT.zip:/usr/share/elasticsearch/index-refresh-plugin-1.0-SNAPSHOT.zip"
     networks:
       es-plugin:
 

@@ -1,5 +1,8 @@
 package com.itsaur.elasticsearch.index.refresh.plugin;
 
+import com.itsaur.elasticsearch.index.refresh.core.EngineConfigUtils;
+import com.itsaur.elasticsearch.index.refresh.core.IndexesRefreshManager;
+import com.itsaur.elasticsearch.index.refresh.rest.IndexRefreshRestAction;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
@@ -40,20 +43,24 @@ public class IndexRefreshPlugin extends Plugin implements EnginePlugin, ActionPl
             final Supplier<DiscoveryNodes> nodesInCluster,
             final Predicate<NodeFeature> clusterSupportsFeature
     ) {
-        return List.of(new IndexRefreshesRestAction(refreshManager));
+        // Passing the IndexesRefreshManager to the IndexRefreshesRestAction so it can add callbacks and get notified
+        // when indexes are refreshed.
+        return List.of(new IndexRefreshRestAction(refreshManager));
     }
 
     @Override
     public Optional<EngineFactory> getEngineFactory(IndexSettings indexSettings) {
         if (indexSettings.getIndexMetadata().isSystem() || indexSettings.getIndexMetadata().isHidden()) {
-            System.out.println("Ignoring index '" + indexSettings.getIndex().getName() + "'");
             return Optional.empty();
         }
 
         return Optional.of(config -> {
-            IndexRefreshListener indexRefreshListener = refreshManager.registerListener(indexSettings.getIndex().getName());
-            // Here is where the actual association of the IndexRefreshListener and the associated index is done.
-            EngineConfig newConfig = ConfigUtils.addRefreshListener(config, indexRefreshListener);
+            // Here is where we add our extra RefreshListener when new indexes are created.
+            // We override the default EngineConfig by adding a new RefreshListener which is created
+            // by the IndexesRefreshManager for the index which is about to be created by elasticsearch.
+            EngineConfig newConfig = EngineConfigUtils
+                    .addRefreshListener(config, refreshManager.registerListener(indexSettings.getIndex().getName()));
+
             return new InternalEngineFactory().newReadWriteEngine(newConfig);
         });
     }

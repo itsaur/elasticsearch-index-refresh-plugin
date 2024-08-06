@@ -1,4 +1,4 @@
-package com.itsaur.elasticsearch.index.refresh.plugin;
+package com.itsaur.elasticsearch.index.refresh.core;
 
 import org.apache.lucene.search.ReferenceManager.RefreshListener;
 
@@ -9,15 +9,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <p>
- *     Implements the {@link RefreshListener} and holds a list of {@link IndexRefreshedCallback}s that will execute every
+ *     Implements the {@link RefreshListener} and holds a list of {@link IndexRefreshCallback}s that will execute every
  *     time the associated index was refreshed. The callbacks are getting a unique id that can be used to remove them
  * </p>
  */
-public class IndexRefreshListener implements RefreshListener {
+class IndexRefreshListener implements RefreshListener {
 
     private final String index;
     private final AtomicLong refreshCount = new AtomicLong(0);
-    private final Map<String, IndexRefreshedCallback.CallbackWithSettings> callbacks = new HashMap<>();
+    private final Map<String, CallbackWithSettings> callbacks = new HashMap<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     IndexRefreshListener(String index) {
@@ -33,7 +33,6 @@ public class IndexRefreshListener implements RefreshListener {
     public void afterRefresh(boolean didRefresh) {
         // executing the callbacks to a different thread to not disrupt elasticsearch.
         executorService.execute(() -> {
-            System.out.println("Received new refresh event for index '" + index + "'");
             handleRefresh(refreshCount.incrementAndGet());
             System.out.println("Total refresh callbacks remained: " + callbacks.size());
         });
@@ -44,7 +43,7 @@ public class IndexRefreshListener implements RefreshListener {
      * Returns the times that the index has been refreshed so far.
      * @return The refresh times number
      */
-    public long refreshCount() {
+    long refreshCount() {
         return refreshCount.get();
     }
 
@@ -53,9 +52,9 @@ public class IndexRefreshListener implements RefreshListener {
      * @param callback The callback to execute each time the associated index is refreshed.
      * @return A unique id associated with this callback that can be used to remove it.
      */
-    public synchronized String addCallback(IndexRefreshedCallback.CallbackWithSettings callback) {
+    synchronized String addCallback(IndexRefreshCallback callback, IndexRefreshCallback.Settings settings) {
         String id = UUID.randomUUID().toString();
-        callbacks.put(id, callback);
+        callbacks.put(id, new CallbackWithSettings(callback, settings));
         return id;
     }
 
@@ -63,7 +62,7 @@ public class IndexRefreshListener implements RefreshListener {
      * Removes a callback by its unique id.
      * @param id The id of the callback
      */
-    public synchronized void removeCallback(String id) {
+    synchronized void removeCallback(String id) {
         callbacks.remove(id);
     }
 

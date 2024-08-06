@@ -1,4 +1,4 @@
-package com.itsaur.elasticsearch.index.refresh.plugin;
+package com.itsaur.elasticsearch.index.refresh.rest;
 
 import org.elasticsearch.rest.RestRequest;
 
@@ -33,6 +33,6 @@ public enum NoIndexMode {
                 .stream(values())
                 .filter(noIndexMode -> mode.equalsIgnoreCase(noIndexMode.name()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown mode [" + mode + "] for '" + REST_PROPERTY + "'"));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown value [" + mode + "] for '" + REST_PROPERTY + "'"));
     }
 }

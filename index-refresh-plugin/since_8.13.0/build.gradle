@@ -17,17 +17,16 @@ dependencies {
 }
 
 jar {
-    archiveBaseName = "index-refresh-plugin"
+    archiveBaseName = "${pluginName}"
 }
 
 println "Building for version ${elasticsearchVersion}"
 
 tasks.register("buildPlugin", Zip) {
-    var pluginName = "index-refresh-plugin"
-
     archiveBaseName = "${pluginName}"
-    include "${pluginName}-${version}.jar"
     destinationDirectory = layout.buildDirectory.dir('plugin')
+
+    include "${pluginName}-${version}.jar"
 
     from jar
 }

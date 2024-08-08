@@ -20,13 +20,14 @@ jar {
     archiveBaseName = "index-refresh-plugin"
 }
 
-copySpec {
-    include "index-refresh-plugin-${version}.jar"
-}
-
 println "Building for version ${elasticsearchVersion}"
 
 tasks.register("buildPlugin", Zip) {
-    dependsOn 'jar'
-    include "index-refresh-plugin-${version}.jar"
+    var pluginName = "index-refresh-plugin"
+
+    archiveBaseName = "${pluginName}"
+    include "${pluginName}-${version}.jar"
+    destinationDirectory = layout.buildDirectory.dir('plugin')
+
+    from jar
 }

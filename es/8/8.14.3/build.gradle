@@ -1,0 +1,34 @@
+println "Configuring es: ${elasticsearchVersion}"
+
+buildscript {
+    println "Configuring build script for ${elasticsearchVersion}"
+    repositories {
+        maven {
+            url = 'https://snapshots.elastic.co/maven/'
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.elasticsearch.gradle:build-tools:${elasticsearchVersion}"
+    }
+}
+
+dependencies {
+    implementation project(':index-refresh-plugin')
+    compileOnly "org.elasticsearch.gradle:build-tools:${elasticsearchVersion}"
+}
+
+apply plugin: "elasticsearch.esplugin"
+version = "${version}_${elasticsearchVersion}"
+
+esplugin {
+    name 'index-refresh-plugin'
+    description 'A plugin that informs through REST endpoint when an indexed was refreshed'
+    classname 'com.itsaur.elasticsearch.index.refresh.plugin.IndexRefreshPlugin'
+}
+
+copySpec {
+    exclude "**/index-refresh-plugin-1.0-SNAPSHOT.jar"
+    exclude "**/*-${version}-SNAPSHOT.jar"
+    exclude "index-refresh-plugin-1.0-SNAPSHOT.jar"
+}

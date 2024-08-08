@@ -1,0 +1,32 @@
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'java'
+
+java {
+    sourceCompatibility = 17
+    targetCompatibility = 17
+}
+
+group = 'com.itsaur'
+version = "1.0_${elasticsearchVersion}"
+
+dependencies {
+    compileOnly "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
+}
+
+jar {
+    archiveBaseName = "index-refresh-plugin"
+}
+
+copySpec {
+    include "index-refresh-plugin-${version}.jar"
+}
+
+println "Building for version ${elasticsearchVersion}"
+
+tasks.register("buildPlugin", Zip) {
+    dependsOn 'jar'
+    include "index-refresh-plugin-${version}.jar"
+}

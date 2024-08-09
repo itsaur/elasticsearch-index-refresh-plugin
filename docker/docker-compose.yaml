@@ -19,7 +19,7 @@ services:
         target: 9200
         published: 9200
     volumes:
-      - "${PWD}/elasticsearch/index-refresh-plugin-1.0_8.14.1.zip:/usr/share/elasticsearch/index-refresh-plugin-1.0_8.14.1.zip"
+      - "${PWD}/plugins/:/usr/share/elasticsearch/extra-plugins/"
     networks:
       es-plugin:
 

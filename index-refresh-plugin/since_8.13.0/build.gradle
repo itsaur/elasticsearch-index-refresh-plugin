@@ -20,13 +20,72 @@ jar {
     archiveBaseName = "${pluginName}"
 }
 
-println "Building for version ${elasticsearchVersion}"
+tasks.register('supportedVersions') {
+    doLast {
+        println supportedVersions
+    }
+}
 
-tasks.register("buildPlugin", Zip) {
-    archiveBaseName = "${pluginName}"
-    destinationDirectory = layout.buildDirectory.dir('plugin')
+tasks.register("generatePluginDescriptor", Copy) {
+    group "plugin"
 
+    doFirst {
+        validateElasticsearchVersion()
+    }
+
+    from layout.projectDirectory.file(pluginDescriptorFile)
+
+    expand(
+            'name': pluginName,
+            'description': pluginDescription,
+            'version': version,
+            'javaVersion': '17',
+            'elasticsearchVersion': elasticsearchVersion,
+            'classname': classname
+    )
+
+    into layout.buildDirectory.dir("${artifactsDir}/${version}")
+}
+
+tasks.register("buildPlugin", Copy) {
+    group 'plugin'
+    dependsOn 'jar'
+
+    doFirst {
+        validateElasticsearchVersion()
+    }
+
+    from layout.buildDirectory.dir("libs")
     include "${pluginName}-${version}.jar"
+    into layout.buildDirectory.dir("${artifactsDir}/${version}")
+}
 
-    from jar
+tasks.register("releasePlugin", Zip) {
+    group 'plugin'
+    dependsOn 'buildPlugin'
+    dependsOn 'generatePluginDescriptor'
+
+    doFirst {
+        validateElasticsearchVersion()
+        println "Building for elasticsearch version ${elasticsearchVersion}"
+    }
+
+    archiveBaseName = "${pluginName}"
+
+    from layout.buildDirectory.dir("${artifactsDir}/${version}")
+    destinationDirectory = layout.buildDirectory.dir("${pluginsDir}")
+}
+
+void validateElasticsearchVersion() {
+    List<String> allowedVersions = new ArrayList()
+    String formattedVersions = ""
+
+    for (final def v in supportedVersions.split(",")) {
+        allowedVersions.add(v.trim())
+        formattedVersions += "\n\t${v}"
+    }
+
+    if (!allowedVersions.contains(elasticsearchVersion)) {
+        throw new GradleException("You must specify a specific elasticsearch supported version: ${formattedVersions}")
+    }
 }

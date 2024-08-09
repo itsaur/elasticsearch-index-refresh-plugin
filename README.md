@@ -9,7 +9,7 @@ available for search.
 - [Versioning](#versioning)  
 - [Installation](#installation)  
 - [Http Endpoints](#http-endpoints)  
-  - [{index}/wait_refresh](#get--post-indexwaitrefresh)
+  - [{index}/wait_refresh](#indexwaitrefresh)
 
 ## Versioning
 
@@ -29,7 +29,7 @@ To install the plugin run the following command:
 
 The plugin add the following http endpoints to elasticsearch:
 
-### GET / POST `/{index}/wait_refresh`
+### `/{index}/wait_refresh`
 
 Responds with the amount of refreshes of the requested `index` (since the latest elasticsearch restart). 
 You can either wait for a new refresh or get back the current amount of refreshes. 

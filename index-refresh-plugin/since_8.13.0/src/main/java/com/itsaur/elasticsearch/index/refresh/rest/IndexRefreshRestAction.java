@@ -34,6 +34,8 @@ public class IndexRefreshRestAction extends BaseRestHandler {
 
         Wait wait = Wait.parseOrDefault(request);
         NoIndexMode noIndexMode = NoIndexMode.parseOrDefault(request);
+        LastRefresh lastRefresh = LastRefresh.parseOrDefault(request);
+
         boolean hasListenerForIndex = indexesRefreshManager.hasListener(index);
 
         if (!hasListenerForIndex) {
@@ -43,6 +45,10 @@ public class IndexRefreshRestAction extends BaseRestHandler {
                 case Wait -> channel -> indexesRefreshManager
                         .addCallbackWithNoCheck(index, EPHEMERAL_CALLBACK_SETTING, refreshes -> sendResponse(channel, refreshes));
             };
+        }
+
+        if (lastRefresh != null && !Objects.equals(lastRefresh.value(), indexesRefreshManager.refreshes(index))) {
+            return channel -> sendResponse(channel, indexesRefreshManager.refreshes(index));
         }
 
         if (wait.value()) {

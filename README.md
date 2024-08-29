@@ -57,3 +57,9 @@ but expected to be).
 |           exit | will return '0' without error                  |
 |           wait | will wait and return once the index is created |
 
+###### last_refresh
+Gives the option to provide the last known number of refreshes in the request. If provided, it will be checked against
+the current number of refreshes and if the values do not match it will return the current value immediately no matter if
+`wait` was requested. 
+
+This is useful if `wait` is requested and the requester is out-of-sync.

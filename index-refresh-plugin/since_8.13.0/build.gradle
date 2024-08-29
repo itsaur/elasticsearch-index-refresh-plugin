@@ -10,7 +10,7 @@ java {
 }
 
 group = 'com.itsaur'
-version = "1.0_${elasticsearchVersion}"
+version = "${rootProject.version}_${elasticsearchVersion}"
 
 dependencies {
     compileOnly "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
